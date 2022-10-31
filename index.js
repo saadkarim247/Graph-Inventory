@@ -55,6 +55,7 @@ async function index() {
       }
       // console.log(55);
       // console.log(children);
+      //this is for removal
       // var Part = new Parts({
       //   partNumber: UniqueBOM[i].PN,
       //   parents: [],
