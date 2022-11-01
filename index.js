@@ -45,7 +45,7 @@ async function index() {
   // console.log( await getPartFromIndex(BOM_graph[2]));
   for (var i = 0; i < BOM.length; i++) {
     var root = BOM[0];
-    
+    var check = true;
     if (BOM[i].Level == "0") {
       var children = [];
       for (var j = 0; j < BOM.length; j++) {
@@ -55,25 +55,65 @@ async function index() {
       }
       // console.log(55);
       // console.log(children);
-   
-      // var Part = new Parts({
-      //   partNumber: UniqueBOM[i].PN,
-      //   parents: [],
-      //   children: children,
-      //   availableStock: 0,
-      // });
 
-      // Part.save();
+      var Part = new Parts({
+        partNumber: BOM[i].PN,
+        parents: [],
+        children: children,
+        availableStock: 0,
+      });
+
+      Part.save();
     } else if (BOM[i].Level == "1") {
       var parents = [root];
       var children = [];
       var j = i + 1;
-      while (BOM[j]?.Level == "2"){
+      while (BOM[j]?.Level == "2") {
         children.push(BOM[j]);
-        j++
+        j++;
       }
-      console.log(72);
-      console.log(children);
+
+      var Part = new Parts({
+        partNumber: BOM[i].PN,
+        parents: parents,
+        children: children,
+        availableStock: 0,
+      });
+
+      Part.save();
+    } else {
+      var children = [];
+      var parents = [];
+      if (i != BOM.length - 1) {
+        if (BOM[i].Level >= BOM[i + 1].Level) {
+        } else {
+          if (check) {
+            var Level = parseInt(BOM[i].Level);
+            check = false;
+          }
+          parents.push(BOM[i]);
+          // console.log(95);
+          // console.log(Level + 1== BOM[i + 1].Level );
+          var j = i + 1;
+          while (Level + 1 == BOM[j].Level) {
+            children.push(BOM[j]);
+            j++;
+          }
+          if (BOM[i + 1].Level <= Level) {
+            check = true;
+          }
+
+          var Part = new Parts({
+            partNumber: BOM[i].PN,
+            parents: parents,
+            children: children,
+            availableStock: 0,
+          });
+
+          Part.save();
+        }
+      }
+      // console.log(i);
     }
   }
 
@@ -123,9 +163,9 @@ async function index() {
 
   // console.log(getPartFromIndex(BOM_graph.nodes()[2]));
 
-  setTimeout(() => {
-    console.log(BOM_graph.serialize());
-  }, 1500);
+  // setTimeout(() => {
+  //   console.log(BOM_graph.serialize());
+  // }, 1500);
 
   // setTimeout(()=>{console.log(result);}, 2000)
 }
