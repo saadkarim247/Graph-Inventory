@@ -39,7 +39,8 @@ async function index() {
   console.log(BOM);
 
   const UniqueBOM = getUniqueListBy(BOM, "PN");
-  console.log(UniqueBOM);
+  // console.log(UniqueBOM);
+
   const Parts = await createModels();
   //creating documents in MongoDb
   for (var i = 0; i < UniqueBOM.length; i++) {
@@ -169,6 +170,18 @@ async function index() {
   //     // console.log(i);
   //   }
   // }
+
+  //availableQuantity updated
+  const allParts = await Parts.find();
+  for (var i = 0; i < Inventory.length; i++) {
+    const PN = Inventory[i].PN;
+    for (var j = 0; j < allParts.length; j++) {
+      if (allParts[j].partNumber == PN) {
+        allParts[j].availableStock = parseInt(Inventory[i].Inventory_Qty);
+      }
+    }
+    await allParts[i].save();
+  }
 
   //Adding nodes to graph
   for (var i = 0; i < BOM.length; i++) {
