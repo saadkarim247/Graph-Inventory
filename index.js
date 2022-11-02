@@ -40,83 +40,137 @@ async function index() {
 
   const UniqueBOM = getUniqueListBy(BOM, "PN");
   console.log(UniqueBOM);
-
   const Parts = await createModels();
-  // console.log( await getPartFromIndex(BOM_graph[2]));
-  for (var i = 0; i < BOM.length; i++) {
-    var root = BOM[0];
-    var check = true;
-    if (BOM[i].Level == "0") {
-      var children = [];
-      for (var j = 0; j < BOM.length; j++) {
-        if (BOM[j].Level == "1") {
-          children.push(BOM[j]);
-        }
-      }
-      // console.log(55);
-      // console.log(children);
-
-      var Part = new Parts({
-        partNumber: BOM[i].PN,
-        parents: [],
-        children: children,
-        availableStock: 0,
-      });
-
-      Part.save();
-    } else if (BOM[i].Level == "1") {
-      var parents = [root];
-      var children = [];
-      var j = i + 1;
-      while (BOM[j]?.Level == "2") {
-        children.push(BOM[j]);
-        j++;
-      }
-
-      var Part = new Parts({
-        partNumber: BOM[i].PN,
-        parents: parents,
-        children: children,
-        availableStock: 0,
-      });
-
-      Part.save();
-    } else {
-      var children = [];
-      var parents = [];
-      if (i != BOM.length - 1) {
-        if (BOM[i].Level >= BOM[i + 1].Level) {
-        } else {
-          if (check) {
-            var Level = parseInt(BOM[i].Level);
-            check = false;
-          }
-          parents.push(BOM[i]);
-          // console.log(95);
-          // console.log(Level + 1== BOM[i + 1].Level );
-          var j = i + 1;
-          while (Level + 1 == BOM[j].Level) {
-            children.push(BOM[j]);
-            j++;
-          }
-          if (BOM[i + 1].Level <= Level) {
-            check = true;
-          }
-
-          var Part = new Parts({
-            partNumber: BOM[i].PN,
-            parents: parents,
-            children: children,
-            availableStock: 0,
-          });
-
-          Part.save();
-        }
-      }
-      // console.log(i);
-    }
+  //creating documents in MongoDb
+  for (var i = 0; i < UniqueBOM.length; i++) {
+    // var Part = new Parts({
+    //   partNumber: UniqueBOM[i].PN,
+    //   parents: [],
+    //   children: [],
+    //   availableStock: 0,
+    // });
+    // await Part.save();
   }
 
+  // Updating parents and childrens in MongoDb
+  // for (var i = 0; i < BOM.length; i++) {
+  //   var root = BOM[0];
+  //   var check = true;
+  //   if (BOM[i].Level == "0") {
+  //     var children = [];
+  //     for (var j = 0; j < BOM.length; j++) {
+  //       if (BOM[j].Level == "1") {
+  //         children.push(BOM[j]);
+  //       }
+  //     }
+  //     const part = await Parts.find({ partNumber: BOM[i].PN });
+  //     part[0].children = children;
+  //     // console.log(part[0].children);
+
+  //     await part[0].save();
+  //   } else if (BOM[i].Level == "1") {
+  //     var parents = [root];
+  //     var children = [];
+  //     var j = i + 1;
+  //     while (BOM[j]?.Level == "2") {
+  //       children.push(BOM[j]);
+  //       j++;
+  //     }
+
+  //     const part = await Parts.find({ partNumber: BOM[i].PN });
+  //     if (part[0].parents.length == 0) {
+  //       part[0].parents = parents;
+  //     } else {
+  //       part[0].parents.concat(parents);
+  //     }
+  //     part[0].children = children;
+  //     // console.log(part[0].children)
+
+  //     await part[0].save();
+  //     // console.log(part);
+  //     // const part = await Parts.find({ PN: BOM[i].PN });
+  //     // console.log(part);
+  //     // var Part = new Parts({
+  //     //   partNumber: BOM[i].PN,
+  //     //   parents: parents,
+  //     //   children: children,
+  //     //   availableStock: 0,
+  //     // });
+
+  //     // Part.save();
+  //   } else {
+  //     var children = [];
+  //     var parents = [];
+  //     if (i != BOM.length - 1) {
+  //       if (BOM[i].Level >= BOM[i + 1].Level) {
+  //         var k = i;
+  //         while (BOM[k].Level == BOM[i].Level) {
+  //           k--;
+  //           if (parseInt(BOM[k].Level) < parseInt(BOM[i].Level)) {
+  //             parents.push(BOM[k]);
+
+  //             break;
+  //           }
+  //         }
+
+  //         const part = await Parts.find({ partNumber: BOM[i].PN });
+  //         if (part[0].parents.length == 0) {
+  //           part[0].parents = parents;
+  //         } else {
+  //           const array = part[0].parents.concat(parents);
+  //           part[0].parents = array;
+  //           console.log(BOM[i].PN);
+  //           // console.log(parents);
+  //         }
+
+  //         part[0].children = children;
+  //         // console.log(part[0].children)
+
+  //         await part[0].save();
+  //       } else {
+  //         if (check) {
+  //           var Level = parseInt(BOM[i].Level);
+  //           check = false;
+  //         }
+  //         var k = i;
+  //         while (BOM[k].Level == BOM[i].Level) {
+  //           k--;
+  //           if (parseInt(BOM[k].Level) < parseInt(BOM[i].Level)) {
+  //             parents.push(BOM[k]);
+
+  //             break;
+  //           }
+  //         }
+  //         // console.log(95);
+  //         // console.log(Level + 1== BOM[i + 1].Level );
+  //         var j = i + 1;
+  //         while (Level + 1 == BOM[j].Level) {
+  //           children.push(BOM[j]);
+  //           j++;
+  //         }
+  //         if (BOM[i + 1].Level <= Level) {
+  //           check = true;
+  //         }
+  //         const part = await Parts.find({ partNumber: BOM[i].PN });
+  //         if (part[0].parents.length == 0) {
+  //           part[0].parents = parents;
+  //         } else {
+  //           part[0].parents.concat(parents);
+
+  //           // console.log(part[0].parents);
+  //         }
+
+  //         part[0].children = children;
+  //         // console.log(part[0].children)
+
+  //         await part[0].save();
+  //       }
+  //     }
+  //     // console.log(i);
+  //   }
+  // }
+
+  //Adding nodes to graph
   for (var i = 0; i < BOM.length; i++) {
     BOM_graph.addNode(i);
   }
@@ -133,7 +187,7 @@ async function index() {
   }
 
   await addingedge(0);
-
+  //Adding edges to graph
   async function addingedge(ind) {
     // console.log("in function") //input 0 for index
     if (i == BOM.length - 1) return;
