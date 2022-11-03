@@ -41,7 +41,10 @@ async function index() {
   const UniqueBOM = getUniqueListBy(BOM, "PN");
   // console.log(UniqueBOM);
 
-  const Parts = await createModels();
+  const array = await createModels();
+  const Parts = array[0];
+  const Forecasts = array[1];
+  console.log(array);
   //creating documents in MongoDb
   for (var i = 0; i < UniqueBOM.length; i++) {
     // var Part = new Parts({
@@ -182,6 +185,17 @@ async function index() {
     }
     await allParts[i].save();
   }
+
+
+  //Adding documents to Forecast
+  // for (var i=0;i<Forecast.length; i++){
+  //   var forecast = new Forecasts({
+  //     quantity: parseInt(Forecast[i].Forecast_qty),
+  //     partNumber: Forecast[i].PN,
+  //     workWeek: parseInt(Forecast[i].Work_Week),
+  //   });
+  //   await forecast.save();
+  // }
 
   //Adding nodes to graph
   for (var i = 0; i < BOM.length; i++) {
