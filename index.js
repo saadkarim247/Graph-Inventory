@@ -44,7 +44,7 @@ async function index() {
   const array = await createModels();
   const Parts = array[0];
   const Forecasts = array[1];
-  console.log(array);
+  // console.log(array);
   //creating documents in MongoDb
   for (var i = 0; i < UniqueBOM.length; i++) {
     // var Part = new Parts({
@@ -186,7 +186,6 @@ async function index() {
     await allParts[i].save();
   }
 
-
   //Adding documents to Forecast
   // for (var i=0;i<Forecast.length; i++){
   //   var forecast = new Forecasts({
@@ -197,6 +196,41 @@ async function index() {
   //   await forecast.save();
   // }
 
+  const childNodes = await Parts.find({ children: [] });
+  var childNodesobj = [];
+
+  for (var i = 0; i < childNodes.length; i++) {
+    for (var j = 0; j < UniqueBOM.length; j++) {
+      if (childNodes[i].partNumber == UniqueBOM[j].PN) {
+        childNodesobj.push(UniqueBOM[j]);
+      }
+    }
+  }
+
+  //calculating BOM required quantity
+  var BOMRequiredQuantity = [];
+  for (var i = 0; i < childNodes.length; i++) {
+    var req_qty = 0;
+    var parentsLen = childNodes[i].parents.length;
+
+    if (childNodes[i].parents.length == 1) {
+      var req_qty = childNodesobj[i].BOM_Qty * childNodes[i].parents[0].BOM_Qty;
+    } else {
+      // var req_qty = 0;
+      for (var j = 0; j < parentsLen; j++) {
+        console.log(
+          childNodesobj[i].BOM_Qty * childNodes[i].parents[j].BOM_Qty
+        );
+        req_qty =
+          req_qty + childNodesobj[i].BOM_Qty * childNodes[i].parents[j].BOM_Qty;
+      }
+    }
+    BOMRequiredQuantity.push(req_qty);
+    console.log(childNodesobj[i].PN);
+    console.log(req_qty);
+    break;
+  }
+  // console.log(BOMRequiredQuantity);
   //Adding nodes to graph
   for (var i = 0; i < BOM.length; i++) {
     BOM_graph.addNode(i);
@@ -245,7 +279,8 @@ async function index() {
   // console.log(getPartFromIndex(BOM_graph.nodes()[2]));
 
   // setTimeout(() => {
-  //   console.log(BOM_graph.serialize());
+  const graph = BOM_graph.serialize();
+  console.log(graph)
   // }, 1500);
 
   // setTimeout(()=>{console.log(result);}, 2000)
