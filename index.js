@@ -187,49 +187,104 @@ async function index() {
   }
 
   //Adding documents to Forecast
-  // for (var i=0;i<Forecast.length; i++){
-  //   var forecast = new Forecasts({
-  //     quantity: parseInt(Forecast[i].Forecast_qty),
-  //     partNumber: Forecast[i].PN,
-  //     workWeek: parseInt(Forecast[i].Work_Week),
-  //   });
-  //   await forecast.save();
+  for (var i = 0; i < Forecast.length; i++) {
+    // var forecast = new Forecasts({
+    //   quantity: parseInt(Forecast[i].Forecast_qty),
+    //   partNumber: Forecast[i].PN,
+    //   workWeek: parseInt(Forecast[i].Work_Week),
+    // });
+    // await forecast.save();
+  }
+
+  // const childNodes = await Parts.find({ children: [] });
+  // var childNodesobj = [];
+
+  // for (var i = 0; i < childNodes.length; i++) {
+  //   for (var j = 0; j < UniqueBOM.length; j++) {
+  //     if (childNodes[i].partNumber == UniqueBOM[j].PN) {
+  //       childNodesobj.push(UniqueBOM[j]);
+  //     }
+  //   }
   // }
 
-  const childNodes = await Parts.find({ children: [] });
-  var childNodesobj = [];
-
-  for (var i = 0; i < childNodes.length; i++) {
-    for (var j = 0; j < UniqueBOM.length; j++) {
-      if (childNodes[i].partNumber == UniqueBOM[j].PN) {
-        childNodesobj.push(UniqueBOM[j]);
-      }
-    }
-  }
-
   //calculating BOM required quantity
-  var BOMRequiredQuantity = [];
-  for (var i = 0; i < childNodes.length; i++) {
-    var req_qty = 0;
-    var parentsLen = childNodes[i].parents.length;
+  for (var i = 0; i < BOM.length; i++) {
+    BOM[i] = { ...BOM[i], req_qty: parseInt(BOM[i].BOM_Qty) };
+    // console.log(BOM[i]);
+  }
+  console.log("lol");
+  // console.log(BOM)
 
-    if (childNodes[i].parents.length == 1) {
-      var req_qty = childNodesobj[i].BOM_Qty * childNodes[i].parents[0].BOM_Qty;
-    } else {
-      // var req_qty = 0;
-      for (var j = 0; j < parentsLen; j++) {
-        console.log(
-          childNodesobj[i].BOM_Qty * childNodes[i].parents[j].BOM_Qty
-        );
-        req_qty =
-          req_qty + childNodesobj[i].BOM_Qty * childNodes[i].parents[j].BOM_Qty;
+  var mult = BOM[0].req_qty;
+  // var Dp = 1;
+  for (var i = 0; i < BOM.length; i++) {
+    var j = i;
+    mult = 1;
+    var currlvl = parseInt(BOM[i].Level);
+    while (j > 0) {
+      j--;
+      if (currlvl - parseInt(BOM[j].Level) == 1) {
+        currlvl = parseInt(BOM[j].Level);
+        mult = mult * BOM[j].req_qty;
+        break;
       }
     }
-    BOMRequiredQuantity.push(req_qty);
-    console.log(childNodesobj[i].PN);
-    console.log(req_qty);
-    break;
+
+    BOM[i].req_qty = parseInt(BOM[i].req_qty) * mult;
   }
+
+  console.log(BOM);
+  var childNodes = await Parts.find({ children: [] });
+  var childBOM = [];
+  var newobj = {};
+  for (var i = 0; i < childNodes.length; i++) {
+    var sum = 0;
+    for (var j = 0; j < BOM.length; j++) {
+      if (childNodes[i].partNumber == BOM[j].PN) {
+        sum = sum + BOM[j].req_qty;
+        newobj = {
+          PartNumber: BOM[j].PN,
+          BOM_REQ_RTY: sum,
+          Work_Week1: 0,
+          Work_Week2: 0,
+          Work_Week3: 0,
+          Work_Week4: 0,
+        };
+      }
+    }
+    childBOM.push(newobj);
+  }
+
+  
+  // workWeek calculations
+  for (var i = 0; i < 4; i++) {
+    if (i == 0) {
+      for (var j = 0; j < childBOM.length; j++) {
+        childBOM[j].Work_Week1 =
+          parseInt(Forecast[i].Forecast_qty) * childBOM[j].BOM_REQ_RTY;
+      }
+    } else if (i == 1) {
+      for (var j = 0; j < childBOM.length; j++) {
+        childBOM[j].Work_Week2 =
+          parseInt(Forecast[i].Forecast_qty) * childBOM[j].BOM_REQ_RTY +
+          childBOM[j].Work_Week1;
+      }
+    } else if (i == 2) {
+      for (var j = 0; j < childBOM.length; j++) {
+        childBOM[j].Work_Week3 =
+          parseInt(Forecast[i].Forecast_qty) * childBOM[j].BOM_REQ_RTY +
+          childBOM[j].Work_Week2;
+      }
+    } else if (i == 3) {
+      for (var j = 0; j < childBOM.length; j++) {
+        childBOM[j].Work_Week4 =
+          parseInt(Forecast[i].Forecast_qty) * childBOM[j].BOM_REQ_RTY +
+          childBOM[j].Work_Week3;
+      }
+    }
+  }
+  console.log("Unique child: ");
+  console.log(childBOM);
   // console.log(BOMRequiredQuantity);
   //Adding nodes to graph
   for (var i = 0; i < BOM.length; i++) {
@@ -279,8 +334,8 @@ async function index() {
   // console.log(getPartFromIndex(BOM_graph.nodes()[2]));
 
   // setTimeout(() => {
-  const graph = BOM_graph.serialize();
-  console.log(graph)
+  // const graph = BOM_graph.serialize();
+  // console.log(graph);
   // }, 1500);
 
   // setTimeout(()=>{console.log(result);}, 2000)
