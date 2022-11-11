@@ -4,8 +4,14 @@ const mongoose = require("mongoose");
 const express = require("express");
 const csv = require("csvtojson");
 const Graph = require("graph-data-structure");
+const cors = require("cors");
 
 const app = express();
+var corsOptions = {
+  origin: 'http://localhost:3000/',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+app.use(cors());
 
 async function index() {
   function getUniqueListBy(arr, key) {
@@ -42,6 +48,7 @@ async function index() {
   // console.log(UniqueBOM);
 
   const array = await createModels();
+
   const Parts = array[0];
   const Forecasts = array[1];
   // console.log(array);
@@ -255,7 +262,6 @@ async function index() {
     childBOM.push(newobj);
   }
 
-  
   // workWeek calculations
   for (var i = 0; i < 4; i++) {
     if (i == 0) {
@@ -302,43 +308,49 @@ async function index() {
     return false;
   }
 
-  await addingedge(0);
-  //Adding edges to graph
-  async function addingedge(ind) {
-    // console.log("in function") //input 0 for index
-    if (i == BOM.length - 1) return;
-    var i;
-    // console.log(ind+1);
-    // console.log(BOM.length)
-    // console.log(i<BOM.length)
-    for (i = ind + 1; i < BOM.length; i++) {
-      // console.log("here");
-      if (BOM[i].Level == BOM[ind].Level) {
-        addingedge(i);
-        break;
-      }
-      if (BOM[i].Level - BOM[ind].Level == 1) {
-        if (!checkrepet(ind, i)) BOM_graph.addEdge(ind, i);
-      }
-      if (BOM[i].Level - BOM[ind].Level > 1) {
-        addingedge(i - 1);
-        // break;
-      }
-    }
-  }
+  // await addingedge(0);
+  // //Adding edges to graph
+  // async function addingedge(ind) {
+  //   // console.log("in function") //input 0 for index
+  //   if (i == BOM.length - 1) return;
+  //   var i;
+  //   // console.log(ind+1);
+  //   // console.log(BOM.length)
+  //   // console.log(i<BOM.length)
+  //   for (i = ind + 1; i < BOM.length; i++) {
+  //     // console.log("here");
+  //     if (BOM[i].Level == BOM[ind].Level) {
+  //       addingedge(i);
+  //       break;
+  //     }
+  //     if (BOM[i].Level - BOM[ind].Level == 1) {
+  //       if (!checkrepet(ind, i)) BOM_graph.addEdge(ind, i);
+  //     }
+  //     if (BOM[i].Level - BOM[ind].Level > 1) {
+  //       addingedge(i - 1);
+  //       // break;
+  //     }
+  //   }
+  // }
 
-  function getPartFromIndex(ind) {
-    return BOM[ind];
-  }
-
-  // console.log(getPartFromIndex(BOM_graph.nodes()[2]));
-
-  // setTimeout(() => {
-  // const graph = BOM_graph.serialize();
-  // console.log(graph);
-  // }, 1500);
-
-  // setTimeout(()=>{console.log(result);}, 2000)
+  return childBOM;
 }
-index();
+
 connectDB();
+
+var answer = null;
+async function getBOMchild() {
+  if (answer == null) {
+    answer = await index();
+  }
+  return answer;
+}
+
+app.get("/", async (req, res) => {
+  const result = await getBOMchild();
+  res.send(result);
+});
+
+app.listen(6000, () => {
+  console.log("Server running on port 6000");
+});
