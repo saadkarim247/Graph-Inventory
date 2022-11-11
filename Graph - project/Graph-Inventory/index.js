@@ -54,135 +54,136 @@ async function index() {
   // console.log(array);
   //creating documents in MongoDb
   for (var i = 0; i < UniqueBOM.length; i++) {
-    // var Part = new Parts({
-    //   partNumber: UniqueBOM[i].PN,
-    //   parents: [],
-    //   children: [],
-    //   availableStock: 0,
-    // });
-    // await Part.save();
+    var Part = new Parts({
+      partNumber: UniqueBOM[i].PN,
+      parents: [],
+      children: [],
+      availableStock: 0,
+    });
+    await Part.save();
   }
 
   // Updating parents and childrens in MongoDb
-  // for (var i = 0; i < BOM.length; i++) {
-  //   var root = BOM[0];
-  //   var check = true;
-  //   if (BOM[i].Level == "0") {
-  //     var children = [];
-  //     for (var j = 0; j < BOM.length; j++) {
-  //       if (BOM[j].Level == "1") {
-  //         children.push(BOM[j]);
-  //       }
-  //     }
-  //     const part = await Parts.find({ partNumber: BOM[i].PN });
-  //     part[0].children = children;
-  //     // console.log(part[0].children);
+  for (var i = 0; i < BOM.length; i++) {
+    var root = BOM[0];
+    var check = true;
+    if (BOM[i].Level == "0") {
+      var children = [];
+      for (var j = 0; j < BOM.length; j++) {
+        if (BOM[j].Level == "1") {
+          children.push(BOM[j]);
+        }
+      }
+      const part = await Parts.find({ partNumber: BOM[i].PN });
+      part[0].children = children;
+      // console.log(part[0].children);
 
-  //     await part[0].save();
-  //   } else if (BOM[i].Level == "1") {
-  //     var parents = [root];
-  //     var children = [];
-  //     var j = i + 1;
-  //     while (BOM[j]?.Level == "2") {
-  //       children.push(BOM[j]);
-  //       j++;
-  //     }
+      await part[0].save();
+    } else if (BOM[i].Level == "1") {
+      var parents = [root];
+      var children = [];
+      var j = i + 1;
+      while (BOM[j]?.Level == "2") {
+        children.push(BOM[j]);
+        j++;
+      }
 
-  //     const part = await Parts.find({ partNumber: BOM[i].PN });
-  //     if (part[0].parents.length == 0) {
-  //       part[0].parents = parents;
-  //     } else {
-  //       part[0].parents.concat(parents);
-  //     }
-  //     part[0].children = children;
-  //     // console.log(part[0].children)
+      const part = await Parts.find({ partNumber: BOM[i].PN });
+      if (part[0].parents.length == 0) {
+        part[0].parents = parents;
+      } else {
+        part[0].parents.concat(parents);
+      }
+      part[0].children = children;
+      // console.log(part[0].children)
 
-  //     await part[0].save();
-  //     // console.log(part);
-  //     // const part = await Parts.find({ PN: BOM[i].PN });
-  //     // console.log(part);
-  //     // var Part = new Parts({
-  //     //   partNumber: BOM[i].PN,
-  //     //   parents: parents,
-  //     //   children: children,
-  //     //   availableStock: 0,
-  //     // });
+      await part[0].save();
+      // console.log(part);
+      // const part = await Parts.find({ PN: BOM[i].PN });
+      // console.log(part);
+      // var Part = new Parts({
+      //   partNumber: BOM[i].PN,
+      //   parents: parents,
+      //   children: children,
+      //   availableStock: 0,
+      // });
 
-  //     // Part.save();
-  //   } else {
-  //     var children = [];
-  //     var parents = [];
-  //     if (i != BOM.length - 1) {
-  //       if (BOM[i].Level >= BOM[i + 1].Level) {
-  //         var k = i;
-  //         while (BOM[k].Level == BOM[i].Level) {
-  //           k--;
-  //           if (parseInt(BOM[k].Level) < parseInt(BOM[i].Level)) {
-  //             parents.push(BOM[k]);
+      // Part.save();
+    } else {
+      var children = [];
+      var parents = [];
+      if (i != BOM.length - 1) {
+        if (BOM[i].Level >= BOM[i + 1].Level) {
+          var k = i;
+          while (BOM[k].Level == BOM[i].Level) {
+            k--;
+            if (parseInt(BOM[k].Level) < parseInt(BOM[i].Level)) {
+              parents.push(BOM[k]);
 
-  //             break;
-  //           }
-  //         }
+              break;
+            }
+          }
 
-  //         const part = await Parts.find({ partNumber: BOM[i].PN });
-  //         if (part[0].parents.length == 0) {
-  //           part[0].parents = parents;
-  //         } else {
-  //           const array = part[0].parents.concat(parents);
-  //           part[0].parents = array;
-  //           console.log(BOM[i].PN);
-  //           // console.log(parents);
-  //         }
+          const part = await Parts.find({ partNumber: BOM[i].PN });
+          if (part[0].parents.length == 0) {
+            part[0].parents = parents;
+          } else {
+            const array = part[0].parents.concat(parents);
+            part[0].parents = array;
+            console.log(BOM[i].PN);
+            // console.log(parents);
+          }
 
-  //         part[0].children = children;
-  //         // console.log(part[0].children)
+          part[0].children = children;
+          // console.log(part[0].children)
 
-  //         await part[0].save();
-  //       } else {
-  //         if (check) {
-  //           var Level = parseInt(BOM[i].Level);
-  //           check = false;
-  //         }
-  //         var k = i;
-  //         while (BOM[k].Level == BOM[i].Level) {
-  //           k--;
-  //           if (parseInt(BOM[k].Level) < parseInt(BOM[i].Level)) {
-  //             parents.push(BOM[k]);
+          await part[0].save();
+        } else {
+          if (check) {
+            var Level = parseInt(BOM[i].Level);
+            check = false;
+          }
+          var k = i;
+          while (BOM[k].Level == BOM[i].Level) {
+            k--;
+            if (parseInt(BOM[k].Level) < parseInt(BOM[i].Level)) {
+              parents.push(BOM[k]);
 
-  //             break;
-  //           }
-  //         }
-  //         // console.log(95);
-  //         // console.log(Level + 1== BOM[i + 1].Level );
-  //         var j = i + 1;
-  //         while (Level + 1 == BOM[j].Level) {
-  //           children.push(BOM[j]);
-  //           j++;
-  //         }
-  //         if (BOM[i + 1].Level <= Level) {
-  //           check = true;
-  //         }
-  //         const part = await Parts.find({ partNumber: BOM[i].PN });
-  //         if (part[0].parents.length == 0) {
-  //           part[0].parents = parents;
-  //         } else {
-  //           part[0].parents.concat(parents);
+              break;
+            }
+          }
+          // console.log(95);
+          // console.log(Level + 1== BOM[i + 1].Level );
+          var j = i + 1;
+          while (Level + 1 == BOM[j].Level) {
+            children.push(BOM[j]);
+            j++;
+          }
+          if (BOM[i + 1].Level <= Level) {
+            check = true;
+          }
+          const part = await Parts.find({ partNumber: BOM[i].PN });
+          if (part[0].parents.length == 0) {
+            part[0].parents = parents;
+          } else {
+            part[0].parents.concat(parents);
 
-  //           // console.log(part[0].parents);
-  //         }
+            // console.log(part[0].parents);
+          }
 
-  //         part[0].children = children;
-  //         // console.log(part[0].children)
+          part[0].children = children;
+          // console.log(part[0].children)
 
-  //         await part[0].save();
-  //       }
-  //     }
-  //     // console.log(i);
-  //   }
-  // }
+          await part[0].save();
+        }
+      }
+      // console.log(i);
+    }
+  }
 
   //availableQuantity updated
   const allParts = await Parts.find();
+  console.log(allParts);
   for (var i = 0; i < Inventory.length; i++) {
     const PN = Inventory[i].PN;
     for (var j = 0; j < allParts.length; j++) {
@@ -195,24 +196,14 @@ async function index() {
 
   //Adding documents to Forecast
   for (var i = 0; i < Forecast.length; i++) {
-    // var forecast = new Forecasts({
-    //   quantity: parseInt(Forecast[i].Forecast_qty),
-    //   partNumber: Forecast[i].PN,
-    //   workWeek: parseInt(Forecast[i].Work_Week),
-    // });
-    // await forecast.save();
+    var forecast = new Forecasts({
+      quantity: parseInt(Forecast[i].Forecast_qty),
+      partNumber: Forecast[i].PN,
+      workWeek: parseInt(Forecast[i].Work_Week),
+    });
+    await forecast.save();
   }
 
-  // const childNodes = await Parts.find({ children: [] });
-  // var childNodesobj = [];
-
-  // for (var i = 0; i < childNodes.length; i++) {
-  //   for (var j = 0; j < UniqueBOM.length; j++) {
-  //     if (childNodes[i].partNumber == UniqueBOM[j].PN) {
-  //       childNodesobj.push(UniqueBOM[j]);
-  //     }
-  //   }
-  // }
 
   //calculating BOM required quantity
   for (var i = 0; i < BOM.length; i++) {
@@ -292,6 +283,7 @@ async function index() {
   console.log("Unique child: ");
   console.log(childBOM);
   // console.log(BOMRequiredQuantity);
+
   //Adding nodes to graph
   for (var i = 0; i < BOM.length; i++) {
     BOM_graph.addNode(i);
@@ -308,30 +300,65 @@ async function index() {
     return false;
   }
 
-  // await addingedge(0);
-  // //Adding edges to graph
-  // async function addingedge(ind) {
-  //   // console.log("in function") //input 0 for index
-  //   if (i == BOM.length - 1) return;
-  //   var i;
-  //   // console.log(ind+1);
-  //   // console.log(BOM.length)
-  //   // console.log(i<BOM.length)
-  //   for (i = ind + 1; i < BOM.length; i++) {
-  //     // console.log("here");
-  //     if (BOM[i].Level == BOM[ind].Level) {
-  //       addingedge(i);
-  //       break;
-  //     }
-  //     if (BOM[i].Level - BOM[ind].Level == 1) {
-  //       if (!checkrepet(ind, i)) BOM_graph.addEdge(ind, i);
-  //     }
-  //     if (BOM[i].Level - BOM[ind].Level > 1) {
-  //       addingedge(i - 1);
-  //       // break;
-  //     }
-  //   }
-  // }
+  //adding values for Inventory (including parents)
+  for (var i = 0; i < Inventory.length; i++) {
+    Inventory[i] = { ...Inventory[i], inc_prnts: parseInt(Inventory[i].Inventory_Qty) };
+  }
+  
+
+  for (var i =0 ; i <BOM.length; i++) {
+    var name = BOM[i].PN;
+  
+  
+    var z = i;
+    while(z>0 && BOM[z].Level>=BOM[i].Level) {
+      z--;
+    }
+    var Pname = BOM[z].PN;
+    var j = 0;
+    for(j = 0; j<Inventory.length ; j++){
+      if(Inventory[j].PN==name){break;}
+    }
+    for (var f =0 ; f <Inventory.length; f++) {
+      if(Inventory[f].PN==Pname){
+        Inventory[j].inc_prnts += Inventory[f].inc_prnts*parseInt(BOM[i].BOM_Qty);
+        break;
+      }
+    }
+  }
+  console.log(Inventory);
+  
+   //Adding edges to graph
+   await addingedge(0);
+   async function addingedge(ind) {
+    // console.log("in function") //input 0 for index
+    if (i == BOM.length - 1) return;
+    var i;
+    // console.log(ind+1);
+    // console.log(BOM.length)
+    // console.log(i<BOM.length)
+    for (i = ind + 1; i < BOM.length; i++) {
+      // console.log("here");
+      if (BOM[i].Level == BOM[ind].Level) {
+        addingedge(i);
+        break;
+      }
+      if (BOM[i].Level - BOM[ind].Level == 1) {
+        if (!checkrepet(ind, i)) BOM_graph.addEdge(ind, i);
+      }
+      if (BOM[i].Level - BOM[ind].Level > 1) {
+        addingedge(i - 1);
+        // break;
+      }
+    }
+  }
+  for (var i = 0; i< childBOM.length; i++){
+    for (var j = 0; j< Inventory.length; j++ ){
+      if (childBOM[i].PartNumber == Inventory[j].PN){
+        childBOM[i] = {...childBOM[i], Inventory: Inventory[j].inc_prnts}
+      }
+    }
+  }
 
   return childBOM;
 }

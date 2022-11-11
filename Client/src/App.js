@@ -31,7 +31,7 @@ function App() {
         <Button
           variant="contained"
           onClick={handleClick}
-          sx={{ marginLeft: 50, marginTop: 10 }}
+          sx={{ marginLeft: 70, marginTop: 10 }}
         > Click Here to Show Table
         </Button>
       ) : (

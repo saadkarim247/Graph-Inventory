@@ -64,7 +64,7 @@ function TableGraph(props) {
                 {item.PartNumber}
               </StyledTableCell>
               <StyledTableCell align="right">{item.BOM_REQ_RTY}</StyledTableCell>
-              <StyledTableCell align="right">{"TBA"}</StyledTableCell>
+              <StyledTableCell align="right">{item.Inventory}</StyledTableCell>
               <StyledTableCell align="right">{item.Work_Week1}</StyledTableCell>
               <StyledTableCell align="right">{item.Work_Week2}</StyledTableCell>
               <StyledTableCell align="right">{item.Work_Week3}</StyledTableCell>
